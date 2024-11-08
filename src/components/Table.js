@@ -114,6 +114,7 @@ function handleAddColumn() {
                                 className={selectedColumn === column.id ? 'highlight-column' : ''}
                                 key={column.id}
                                 id={column.field}
+                                style={{ border: "none"}}
                             >
                                 <button onClick={() => {
                                     handelDeleteColumn(column)
@@ -154,7 +155,7 @@ function handleAddColumn() {
                                     </td>
                                 })
                             }
-                            <td><button onClick={() => {
+                            <td style={{ border: "none"}}><button onClick={() => {
                                 handelDeleteRow(row)
                             }}>-</button></td>
                         </tr>

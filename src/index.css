@@ -16,7 +16,17 @@ table-style {
   margin:  137; /* or margin: 0 auto 0 auto */
 }
 
-td ,th {
+ table td ,th {
   border: 1px solid black;
   padding: 10px;
+}
+
+.highlight-row {
+  background-color: lightblue;
+}
+.highlight-column {
+  background-color: lightgreen;
+}
+.highlight-table {
+  background-color: lightcoral;
 }

@@ -1,7 +1,12 @@
-// import { useState } from 'react';
+import { useState } from 'react';
 import { useSelector , useDispatch } from 'react-redux';
-import { addColumn,addRow, removeColumn, removeRow } from '../redux/tableDataReducerAndAction';
+import { addColumn,addRow, removeColumn, removeRow , updateCellValue } from '../redux/tableDataReducerAndAction';
 function Table() {
+
+// State for selected row and column for highlighting
+const [selectedRow, setSelectedRow] = useState(null);
+const [selectedColumn, setSelectedColumn] = useState(null);
+const [selectAll , setSelectAll] = useState(false)
 
 //Get the data from the sore using useSelector Hooks
 const rows = useSelector((state)=> state.table.rows);
@@ -64,28 +69,59 @@ function handleAddColumn() {
     dispatch(removeColumn(columnId))
   }
 
+    // Function to highlight row
+    function highlightRow(rowId) {
+        setSelectedRow(rowId);
+        setSelectedColumn(null); // Reset column selection if a row is selected
+        setSelectAll(false);
+      }
+    
+      // Function to highlight column
+      function highlightColumn(columnId) {
+        setSelectedColumn(columnId);
+        setSelectedRow(null); // Reset row selection if a column is selected
+        setSelectAll(false); 
+      }
 
-  return (
-      <div className="table">
-          <div>
-              <button onClick={handleAddRow}>Add Row</button>
-              <button onClick={handleAddColumn}>Add Column</button>
-          </div>
-          <table className='table-style'>
-              <thead>
-                <tr>
-                      {columns.map((column, index) => {
-                          return <th
-                              key={column.id}
-                              id={column.field}
-                          >
-                              <button onClick={()=>{
-                                handelDeleteColumn(column)
-                              }}>-</button>
-                          </th>
-                      })}
-                  </tr>
-                  {/* <tr>
+      function highlightAll(){
+        setSelectAll(!selectAll); // Toggle whole table selection
+        setSelectedRow(null);
+        setSelectedColumn(null);
+      }
+
+      function handelCellInput(e,field, rowId){
+        // console.log(e.target.innerText,columnId , rowId)
+        dispatch(updateCellValue({rowId, field, value: e.target.innerText}));
+
+        console.log({
+            rows,
+            columns
+        })
+      }
+    return (
+        <div className="table">
+            <div>
+                <button onClick={handleAddRow}>Add Row</button>
+                <button onClick={handleAddColumn}>Add Column</button>
+                <button onClick={highlightAll}>Select All</button>
+            </div>
+            <table className={`table-style ${selectAll ? 'highlight-table' : ''}`}>
+                <thead>
+                    <tr>
+                        {columns.map((column, index) => {
+                            return <th
+                                onClick={() => highlightColumn(column.id)}
+                                className={selectedColumn === column.id ? 'highlight-column' : ''}
+                                key={column.id}
+                                id={column.field}
+                            >
+                                <button onClick={() => {
+                                    handelDeleteColumn(column)
+                                }}>-</button>
+                            </th>
+                        })}
+                    </tr>
+                    {/* <tr>
                       {columns.map((column, index) => {
                           return <th
                               key={column.id}
@@ -95,32 +131,40 @@ function handleAddColumn() {
                           </th>
                       })}
                   </tr> */}
-              </thead>
-              <tbody>
-                  {rows.map(row => {
-                      return <tr key={row.id}>
-                          {
-                              columns.map(column => {
-                                  return <td
-                                     contenteditable='true'
-                                      key={column.id}
-                                      >
-                                        
-                                      {row[column.field]}
-                                  </td>
-                              })
-                          }
-                          <td><button onClick={()=>{
-                            handelDeleteRow(row)
-                          }}>-</button></td>
-                      </tr>
-                  })}
-              </tbody>
+                </thead>
+                <tbody>
+                    {rows.map(row => {
+                        return <tr
+                            onClick={() => highlightRow(row.id)}
+                            className={selectedRow === row.id ? 'highlight-row' : ''}
+                            key={row.id}
+                        >
+                            {
+                                columns.map(column => {
+                                    return <td
+                                        className={selectedColumn === column.id ? 'highlight-column' : ''}
+                                        contenteditable='true'
+                                        key={column.id}
+                                        onInput={(e) => {
+                                            handelCellInput(e, column.field , row.id)
+                                        }}
+                                    >
 
-          </table>
+                                        {row[column.field]}
+                                    </td>
+                                })
+                            }
+                            <td><button onClick={() => {
+                                handelDeleteRow(row)
+                            }}>-</button></td>
+                        </tr>
+                    })}
+                </tbody>
 
-      </div>
-  );
+            </table>
+
+        </div>
+    );
 }
 
 export default Table;
